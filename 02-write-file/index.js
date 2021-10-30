@@ -13,7 +13,7 @@ function addToFile(input) {
   if (input === 'exit') {
     closeInput()
   } else {
-    fs.appendFile(pathToFile, input, () => {})
+    fs.appendFile(pathToFile, `${input}\r`, () => {})
   }
 }
 
@@ -22,7 +22,7 @@ function closeInput() {
   readline.close()
 }
 
-fs.writeFile(pathToFile, '', () => {})
+fs.open(pathToFile, 'a+', () => {})
 
 readline.question('Hello! What are you want to say? ', (input) => {
   addToFile(input)
