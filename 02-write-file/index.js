@@ -10,7 +10,7 @@ const readline = require('readline').createInterface({
 })
 
 function addToFile(input) {
-  if (input === 'exit') {
+  if (input.toUpperCase().trim() === 'EXIT') {
     closeInput()
   } else {
     fs.appendFile(pathToFile, `${input}\r`, () => {})
@@ -22,7 +22,7 @@ function closeInput() {
   readline.close()
 }
 
-fs.open(pathToFile, 'a+', () => {})
+fs.createWriteStream(pathToFile, () => {})
 
 readline.question('Hello! What are you want to say? ', (input) => {
   addToFile(input)
