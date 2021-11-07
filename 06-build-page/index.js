@@ -3,7 +3,7 @@ const fsPromises = require('fs/promises')
 const path = require('path')
 
 const pathToAssetsForCopy = path.join(__dirname, 'assets')
-const pathToBundleFolder = path.join(__dirname, 'project-dist')
+const pathToBundleFolder = path.join(__dirname, 'project-dist', 'assets')
 
 const pathToStylesFolder = path.join(__dirname, 'styles')
 const pathToStylesFile = path.resolve(__dirname, 'project-dist', 'style.css')
@@ -38,9 +38,36 @@ function copy(pathToSource, pathToCopy) {
     })
 }
 
+let templates = {}
+
+function getTemples() {
+  fsPromises
+    .readdir(pathToComponents, { withFileTypes: true }, () => {})
+    .then((datas) => {
+      datas.forEach((data) => {
+        const src = fs.createReadStream(
+          path.join(pathToComponents, data.name),
+          'utf-8',
+          () => {}
+        )
+        src.on('data', (chunk) => {
+          templates[data.name.split('.')[0]] = chunk
+        })
+      })
+    })
+}
+
+function replacer(word) {
+  let template = word.replace(/{{|}}/g, '')
+
+  return templates[template]
+}
+
 createFolder(pathToBundleFolder)
 copy(pathToAssetsForCopy, pathToBundleFolder)
+getTemples()
 
+console.log(pathToStylesFile)
 const bundleCSS = fs.createWriteStream(pathToStylesFile)
 
 fsPromises
@@ -49,43 +76,17 @@ fsPromises
     datas.forEach((data) => {
       if (data.isFile() && data.name.split('.')[1] === 'css') {
         const src = fs.createReadStream(
-          path.join(pathToStylesFolder, data.name)
+          path.resolve(pathToStylesFolder, data.name)
         )
         src.pipe(bundleCSS)
       }
     })
   })
 
-const bundleHTML = fs.createWriteStream(pathToHTMLFile, () => {})
-
-function replacer(word) {
-  let template = word.replace(/{{|}}/g, '')
-  let temp = fsPromises
-    .readdir(pathToComponents, { withFileTypes: true }, () => {})
-    .then((datas) => {
-      datas.forEach((data) => {
-        if (data.name.split('.')[0] === template) {
-          const src = fs.createReadStream(
-            path.join(pathToComponents, data.name),
-            'utf-8',
-            () => {}
-          )
-          src.on('data', (chunk) => {
-            console.log('chunk', chunk)
-            return chunk
-          })
-        }
-      })
-    })
-
-  console.log(temp)
-  return temp
-}
-
 fsPromises
   .readFile(pathToTemplate, 'utf-8', () => {})
   .then((data) => {
-    let temp = data.replace(/{{\w+}}/g, replacer)
-    console.log('temp            ', temp)
-    fs.writeFile(pathToHTMLFile, temp, () => {})
+    let t = data.replace(/{{\w+}}/g, replacer)
+
+    fs.writeFile(pathToHTMLFile, t, () => {})
   })
