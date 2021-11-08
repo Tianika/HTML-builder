@@ -18,6 +18,9 @@ function createFolder(pathToFolder) {
   })
 }
 
+createFolder(path.join(__dirname, 'project-dist'))
+createFolder(pathToBundleFolder)
+
 function copy(pathToSource, pathToCopy) {
   fsPromises
     .readdir(pathToSource, { withFileTypes: true }, () => {})
@@ -63,11 +66,9 @@ function replacer(word) {
   return templates[template]
 }
 
-createFolder(pathToBundleFolder)
 copy(pathToAssetsForCopy, pathToBundleFolder)
 getTemples()
 
-console.log(pathToStylesFile)
 const bundleCSS = fs.createWriteStream(pathToStylesFile)
 
 fsPromises
