@@ -11,7 +11,10 @@ fsPromises
   .readdir(pathToStylesFolder, { withFileTypes: true }, () => {})
   .then((datas) => {
     datas.forEach((data) => {
-      if (data.isFile() && data.name.split('.')[1] === 'css') {
+      let extName = path
+        .extname(path.join(pathToStylesFolder, data.name))
+        .replace('.', '')
+      if (data.isFile() && extName === 'css') {
         const src = fs.createReadStream(
           path.join(pathToStylesFolder, data.name)
         )

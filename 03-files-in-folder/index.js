@@ -9,9 +9,11 @@ fsPromises
   .then((files) => {
     for (let file of files) {
       if (file.isFile()) {
-        let name = file.name.split('.')
-        fs.stat(path.join(pathToFolder, file.name), (err, stats) => {
-          console.log(`${name[0]} - ${name[1]} - ${stats.size}b`)
+        let pathToFile = path.join(pathToFolder, file.name)
+        fs.stat(pathToFile, (err, stats) => {
+          let name = path.parse(pathToFile).name
+          let extName = path.extname(pathToFile).replace('.', '')
+          console.log(`${name} - ${extName} - ${stats.size}b`)
         })
       }
     }
